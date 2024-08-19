@@ -1,6 +1,6 @@
 use std::ops;
 
-use crate::utils::{random_uniform, GOLDEN_RATIO, PI};
+use crate::utils::{random_interval, random_uniform, GOLDEN_RATIO, PI};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vec3 {
@@ -46,9 +46,20 @@ impl Vec3 {
         Vec3::new(random_uniform(), random_uniform(), random_uniform())
     }
 
+    pub fn random_range(min: f64, max: f64) -> Vec3 {
+        Vec3::new(random_interval(min, max), random_interval(min, max), random_interval(min, max))
+    }
+
     pub fn near_zero(&self) -> bool {
         let s = 1e-8;
         (f64::abs(self.x) < s) && (f64::abs(self.y) < s) && (f64::abs(self.z) < s)
+    }
+}
+
+// Default Vec3
+impl Default for Vec3 {
+    fn default() -> Self {
+        Self { x: 0.0, y: 0.0, z: 0.0 }
     }
 }
 
@@ -124,6 +135,17 @@ pub fn unit_vector(u: Vec3) -> Vec3 {
     u / u.length()
 }
 
+// Sampling randomly from a unit disk with Fibonacci sequences:
+// https://observablehq.com/@meetamit/fibonacci-lattices
+pub fn random_unit_disk() -> Vec3 {
+    let sample_x = random_uniform();
+    let sample_y = random_uniform();
+
+    let theta = 2.0 * PI * sample_x;
+    let r = f64::sqrt(sample_y);
+
+    Vec3::new(r * f64::cos(theta), r * f64::sin(theta), 0.0)
+}
 
 // Sampling randomly from a sphere more efficiently with Fibonacci sampling
 // https://extremelearning.com.au/how-to-evenly-distribute-points-on-a-sphere-more-effectively-than-the-canonical-fibonacci-lattice/

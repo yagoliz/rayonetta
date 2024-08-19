@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::color::Color;
 use crate::interval::Interval;
@@ -12,7 +12,7 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
-    pub mat: Rc<dyn Material>,
+    pub mat: Arc<dyn Material + Sync + Send>,
 }
 
 impl HitRecord {
@@ -22,7 +22,7 @@ impl HitRecord {
             normal: Vec3::new(0.0, 0.0, 0.0),
             t: 0.0,
             front_face: true,
-            mat: Rc::new(Lambertian::new(Color::new(0.0, 0.0, 0.0)))
+            mat: Arc::new(Lambertian::new(Color::new(0.0, 0.0, 0.0)))
         }
     }
 
@@ -35,6 +35,6 @@ impl HitRecord {
     }
 }
 
-pub trait Hittable {
+pub trait Hittable: Sync + Send {
     fn hit(&self, r: &Ray, ray_t: &mut Interval, rec: &mut HitRecord) -> bool;
 }

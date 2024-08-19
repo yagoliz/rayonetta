@@ -1,6 +1,6 @@
 use crate::{color::Color, hittable::HitRecord, ray::Ray, utils::random_uniform, vec3::{dot, random_unit_sphere, reflect, refract, unit_vector, Vec3}};
 
-pub trait Material {
+pub trait Material: Sync + Send {
     fn scatter(
         &self,
         r_in: &Ray,

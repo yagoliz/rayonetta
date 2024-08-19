@@ -1,10 +1,10 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::interval::Interval;
 use crate::ray::Ray;
 use crate::hittable::{Hittable, HitRecord};
 
-pub type HittableObject = Rc<dyn Hittable>;
+pub type HittableObject = Arc<dyn Hittable>;
 
 pub struct HittableList {
     pub list: Vec<HittableObject>

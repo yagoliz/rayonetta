@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::interval::Interval;
 use crate::material::Material;
@@ -9,11 +9,11 @@ use crate::hittable::{HitRecord, Hittable};
 pub struct Plane {
     normal: Vec3,
     offset: f64,
-    mat: Rc<dyn Material>,
+    mat: Arc<dyn Material + Sync + Send>,
 }
 
 impl Plane {
-    pub fn new(normal: Vec3, center: Point3, mat: Rc<dyn Material>) -> Self {
+    pub fn new(normal: Vec3, center: Point3, mat: Arc<dyn Material + Sync + Send>) -> Self {
         Plane { normal: normal, offset: -dot(normal, center), mat: mat}
     }
 }
