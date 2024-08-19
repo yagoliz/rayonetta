@@ -5,7 +5,7 @@ use env_logger::Env;
 use rayonetta::camera::Camera;
 use rayonetta::color::Color;
 use rayonetta::hittable_list::HittableList;
-use rayonetta::material::{Dielectric, Lambertian, Material, Metal};
+use rayonetta::material::{Dielectric, Lambertian, Metal};
 use rayonetta::plane::Plane;
 use rayonetta::sphere::Sphere;
 use rayonetta::utils::{random_interval, random_uniform};
@@ -26,7 +26,7 @@ fn main() {
     let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
     world.add(Arc::new(Plane::new(
         Vec3::new(0.0, 1.0, 0.0),
-        Point3::new(0.0, -0.5, 0.0),
+        Point3::new(0.0, 0.0, 0.0),
         material_ground
     )));
 
@@ -69,16 +69,16 @@ fn main() {
 
     // Camera settings
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
-    let samples_per_pixel = 50;
-    let max_depth = 5;
+    let image_width = 1200;
+    let samples_per_pixel = 500;
+    let max_depth = 50;
 
     let vfov = 20.0;
     let lookfrom = Point3::new(13.0, 2.0, 3.0);
     let lookat = Point3::new(0.0, 0.0, 0.0);
     let vup = Vec3::new(0.0, 1.0, 0.0);
 
-    let defocus_angle = 6.0;
+    let defocus_angle = 0.6;
     let focus_dist = 10.0;
 
     let mut cam = Camera::new();

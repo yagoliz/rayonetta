@@ -181,16 +181,3 @@ pub fn refract(v: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
     let r_out_para = -f64::sqrt(f64::abs(1.0 - r_out_perp.length_squared())) * n;
     r_out_perp + r_out_para
 }
-
-// pub fn random_in_unit_sphere() -> Vec3 {
-//     loop {
-//         let p = Vec3::new(random_interval(-1.0, 1.0), random_interval(-1.0, 1.0), random_interval(-1.0, 1.0));
-//         if p.length_squared() < 1.0 {
-//             return p;
-//         }
-//     }
-// }
-
-// pub fn random_unit_sphere() -> Vec3 {
-//     unit_vector(&random_in_unit_sphere())
-// }
