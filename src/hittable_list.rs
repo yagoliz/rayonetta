@@ -29,13 +29,12 @@ impl HittableList {
 
         for object in self.list.iter() {
             let mut temp = HitRecord::new();
-            if object.hit(r, &mut Interval::new(0.0, closest), &mut temp) {
+            if object.hit(r, &mut Interval::new(ray_t.min, closest), &mut temp) {
                 hit_anything = true;
                 closest = temp.t;
 
                 *rec = temp;
             }
-
         }
 
         hit_anything

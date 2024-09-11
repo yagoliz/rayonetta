@@ -65,7 +65,7 @@ impl Material for Metal {
         reflected = unit_vector(reflected) + (self.fuzz * random_unit_sphere());
         *scattered = Ray::new(rec.p, reflected);
         *attenuation = self.albedo;
-        return dot(scattered.direction(), rec.normal) > 0.0
+        dot(scattered.direction(), rec.normal) > 0.0
     }
 }
 
@@ -96,7 +96,7 @@ impl Material for Dielectric {
             scattered: &mut Ray,
         ) -> bool {
         *attenuation = Color::new(1.0, 1.0, 1.0);
-        let ri = if rec.front_face {1.0/self.refraction_index} else {self.refraction_index};
+        let ri = if rec.front_face { 1.0 / self.refraction_index } else { self.refraction_index };
 
         let unit_direction = unit_vector(r_in.direction());
         let cos_theta = f64::min(dot(-unit_direction, rec.normal), 1.0);
@@ -112,6 +112,6 @@ impl Material for Dielectric {
         }
 
         *scattered = Ray::new(rec.p, direction);
-        return true;
+        true
     }
 }

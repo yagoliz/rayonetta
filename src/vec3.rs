@@ -1,8 +1,8 @@
 use std::ops;
 
-use crate::utils::{random_interval, random_uniform, GOLDEN_RATIO, PI};
+use crate::utils::{random_interval, random_uniform, PI};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, )]
 pub struct Vec3 {
     x: f64,
     y: f64,
@@ -152,12 +152,13 @@ pub fn random_unit_disk() -> Vec3 {
 pub fn random_unit_sphere() -> Vec3 {
     let sample_theta = random_uniform();
     let sample_phi = random_uniform();
-    let theta = 2.0 * PI * sample_theta / GOLDEN_RATIO;
+    let theta = 2.0 * PI * sample_theta;
     let cos_theta = f64::cos(theta);
-    let sin_theta = f64::sqrt(1.0 - cos_theta*cos_theta);
+    let sin_theta = f64::sin(theta);
     
-    let cos_phi = 1.0 - 2.0 * sample_phi;
-    let sin_phi = f64::sqrt(1.0 - cos_phi*cos_phi);
+    let phi = f64::acos(1.0 - 2.0 * sample_phi);
+    let cos_phi = f64::cos(phi);
+    let sin_phi = f64::sin(phi);
 
     Vec3::new(cos_theta * sin_phi, sin_theta * sin_phi, cos_phi)
 }
@@ -180,4 +181,39 @@ pub fn refract(v: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
     let r_out_perp = etai_over_etat * (v + cos_theta * n);
     let r_out_para = -f64::sqrt(f64::abs(1.0 - r_out_perp.length_squared())) * n;
     r_out_perp + r_out_para
+}
+
+// Testing
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_unit() {
+        let v = Vec3::random_range(-10.0, 10.0);
+        let u = unit_vector(v);
+        assert!(f64::abs(u.length()-1.0) < 1e-8);
+    }
+
+    #[test]
+    fn test_reflect() {
+        let v = Vec3::new(f64::cos(PI/4.0), -f64::sin(PI/4.0), 0.0);
+        let n = Vec3::new(0.0, 1.0, 0.0);
+
+        let r = reflect(v, n);
+        let m = Vec3::new(f64::cos(PI/4.0), f64::sin(PI/4.0), 0.0); 
+        assert!((m-r).length() < 1e-8);
+    }
+
+    #[test]
+    fn test_refract() {
+        let v = Vec3::new(f64::cos(PI/4.0), -f64::sin(PI/4.0), 0.0);
+        let n = Vec3::new(0.0, 1.0, 0.0);
+
+        let sin_theta2 = 1.0/1.33 * f64::sin(PI/4.0);
+
+        let r = refract(v, n, 1.0/1.33);
+        let m = Vec3::new(sin_theta2, -f64::sqrt(1.0-sin_theta2*sin_theta2), 0.0); 
+        assert!((m-r).length() < 1e-6);    
+    }
 }
