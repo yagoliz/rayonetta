@@ -21,7 +21,7 @@ impl Sphere {
         }
     }
 
-    pub fn new_dyn(
+    pub fn new_dynamic(
         center: Point3,
         center_next: Point3,
         radius: f64,

@@ -131,7 +131,7 @@ impl Camera {
     
         let origin = if self.defocus_angle <= 0.0 {self.center} else {self.defocus_disk_sample()};
         let direction = pixel_sample - origin;
-        let ray_time = 0.0;
+        let ray_time = random_uniform();
 
         Ray::new_with_time(origin, direction, ray_time)
     }
