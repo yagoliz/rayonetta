@@ -7,9 +7,6 @@ pub struct Interval {
 }
 
 impl Interval {
-    pub fn empty() -> Self {
-        Interval { min: -INFINITY, max: INFINITY }
-    }
 
     pub fn new(min: f64, max: f64) -> Self {
         Interval { min: min, max: max }
@@ -17,8 +14,8 @@ impl Interval {
 
     pub fn from_interval(a: &Interval, b: &Interval) -> Self {
         Interval {
-            min: f64::min(a.min, b.min),
-            max: f64::max(a.max, b.max),
+            min: if a.min <= b.min { a.min } else { b.min },
+            max: if a.max >= b.max { a.max } else { b.max },
         }
     }
 

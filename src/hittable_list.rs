@@ -14,7 +14,7 @@ pub struct HittableList {
 
 impl HittableList {
     pub fn new() -> Self {
-        HittableList { list: Vec::new(), bbox: AABB::empty() }
+        HittableList { list: Vec::new(), bbox: AABB::EMPTY }
     }
 
     pub fn from_object(obj: HittableObject) -> Self {

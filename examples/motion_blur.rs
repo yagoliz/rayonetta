@@ -22,14 +22,6 @@ fn main() {
 
     // World
     let mut world = HittableList::new();
-    
-    // Ground Plane
-    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    world.add(Arc::new(Sphere::new(
-        Vec3::new(0.0, -1000.0, 0.0),
-        1000.0,
-        material_ground
-    )));
 
     // Smaller balls
     for a in -11..11 {
@@ -61,16 +53,23 @@ fn main() {
 
     // Bigger balls
     let material1 = Arc::new(Dielectric::new(1.5));
-    world.add(Arc::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, material1.clone())));
-
     let material2 = Arc::new(Lambertian::new(Color::new(0.4, 0.2, 0.1)));
-    world.add(Arc::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, material2.clone())));
-
     let material3 = Arc::new(Metal::new(Color::new(0.7, 0.6, 0.5), 0.0));
+
+    world.add(Arc::new(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, material1.clone())));
+    world.add(Arc::new(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, material2.clone())));
     world.add(Arc::new(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, material3.clone())));
 
     // We now change the world to a BVH
     world = HittableList::from_object(Arc::new(BVH::from_hittable(world)));
+
+    // Ground Plane
+    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Plane::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        Point3::new(0.0, 0.0, 0.0),
+        material_ground
+    )));
 
     // Camera settings
     let aspect_ratio = 16.0 / 9.0;

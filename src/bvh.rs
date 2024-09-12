@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{aabb::AABB, hittable::Hittable, hittable_list::HittableList, utils::random_int};
+use crate::{aabb::AABB, hittable::Hittable, hittable_list::HittableList};
 
 pub struct BVH {
     pub left: Arc<dyn Hittable>,
@@ -14,7 +14,13 @@ impl BVH {
     }
 
     pub fn new(objects: &mut Vec<Arc<dyn Hittable>>, start: usize, end: usize) -> Self {
-        let axis = random_int(0, 2);
+        // Building the BBOX from the object span
+        let mut bbox = AABB::EMPTY;
+        for i in 0..objects.len() {
+            bbox = AABB::from_bboxes(&bbox, &objects[i].bounding_box())
+        }
+
+        let axis = bbox.longest_axis();
 
         let comparator = match axis {
             0 => BVH::box_x_compare,
@@ -46,7 +52,6 @@ impl BVH {
             right = Arc::new(BVH::new(&mut objects.clone(), mid, end));
         }
 
-        let bbox = AABB::from_bboxes(&left.bounding_box(), &right.bounding_box());
         BVH {
             left: left,
             right: right,

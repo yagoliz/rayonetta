@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use env_logger::Env;
 
+use rayonetta::bvh::BVH;
 use rayonetta::camera::Camera;
 use rayonetta::color::Color;
 use rayonetta::hittable_list::HittableList;
@@ -21,14 +22,6 @@ fn main() {
     // World
     let mut world = HittableList::new();
     
-    // Ground Plane
-    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
-    world.add(Arc::new(Plane::new(
-        Vec3::new(0.0, 1.0, 0.0),
-        Point3::new(0.0, -0.25, 0.0),
-        material_ground
-    )));
-
     // Bigger balls
     let diffuse = Arc::new(Metal::new(Color::new(0.9, 0.4, 0.1), 0.10));
     world.add(Arc::new(Sphere::new(Point3::new(-0.25, 0.00, -1.0), 0.25, diffuse.clone())));
@@ -36,7 +29,17 @@ fn main() {
     let glass = Arc::new(Dielectric::new(1.5));
     let bubble = Arc::new(Dielectric::new(1.0/1.5));
     world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.25, glass.clone())));
-    world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.20, bubble.clone())));
+    world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.22, bubble.clone())));
+
+    world = HittableList::from_object(Arc::new(BVH::from_hittable(world)));
+
+    // Ground Plane
+    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Plane::new(
+        Vec3::new(0.0, 1.0, 0.0),
+        Point3::new(0.0, -0.25, 0.0),
+        material_ground
+    )));
 
     // Camera settings
     let aspect_ratio = 16.0 / 9.0;

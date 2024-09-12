@@ -42,6 +42,6 @@ impl Hittable for Plane {
     }
 
     fn bounding_box(&self) -> AABB {
-        AABB::empty()
+        AABB::EMPTY
     }
 }
