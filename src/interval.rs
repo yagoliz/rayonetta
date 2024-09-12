@@ -14,8 +14,8 @@ impl Interval {
 
     pub fn from_interval(a: &Interval, b: &Interval) -> Self {
         Interval {
-            min: if a.min <= b.min { a.min } else { b.min },
-            max: if a.max >= b.max { a.max } else { b.max },
+            min: a.min.min(b.min),
+            max: a.max.max(b.max),
         }
     }
 
