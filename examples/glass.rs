@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use env_logger::Env;
 
-use rayonetta::bvh::BVH;
 use rayonetta::camera::Camera;
 use rayonetta::color::Color;
 use rayonetta::hittable_list::HittableList;
@@ -30,8 +29,6 @@ fn main() {
     let bubble = Arc::new(Dielectric::new(1.0/1.5));
     world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.25, glass.clone())));
     world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.22, bubble.clone())));
-
-    world = HittableList::from_object(Arc::new(BVH::from_hittable(world)));
 
     // Ground Plane
     let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
