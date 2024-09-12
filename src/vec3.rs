@@ -1,4 +1,4 @@
-use std::ops;
+use std::ops::{self, Index};
 
 use crate::utils::{random_interval, random_uniform, PI};
 
@@ -60,6 +60,19 @@ impl Vec3 {
 impl Default for Vec3 {
     fn default() -> Self {
         Self { x: 0.0, y: 0.0, z: 0.0 }
+    }
+}
+
+// Indexing
+impl Index<usize> for Vec3 {
+    type Output = f64;
+    fn index(&self, i: usize) -> &Self::Output {
+        match i {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Invalid index for Vec3")
+        }
     }
 }
 

@@ -21,3 +21,7 @@ pub fn random_uniform() -> f64 {
 pub fn random_interval(min: f64, max: f64) -> f64 {
     min + (max - min) * random_uniform()
 }
+
+pub fn random_int(min: i32, max: i32) -> i32 {
+    random_interval(min as f64, max as f64) as i32
+}

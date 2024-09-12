@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::aabb::AABB;
 use crate::interval::Interval;
 use crate::material::Material;
 use crate::vec3::{Point3, Vec3, dot};
@@ -38,5 +39,9 @@ impl Hittable for Plane {
         rec.mat = self.mat.clone();
         
         return true;
+    }
+
+    fn bounding_box(&self) -> AABB {
+        AABB::empty()
     }
 }

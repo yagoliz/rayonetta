@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::aabb::AABB;
 use crate::color::Color;
 use crate::interval::Interval;
 use crate::material::{Lambertian, Material};
@@ -37,4 +38,5 @@ impl HitRecord {
 
 pub trait Hittable: Sync + Send {
     fn hit(&self, r: &Ray, ray_t: &mut Interval, rec: &mut HitRecord) -> bool;
+    fn bounding_box(&self) -> AABB;
 }

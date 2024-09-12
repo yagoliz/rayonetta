@@ -15,6 +15,13 @@ impl Interval {
         Interval { min: min, max: max }
     }
 
+    pub fn from_interval(a: &Interval, b: &Interval) -> Self {
+        Interval {
+            min: f64::min(a.min, b.min),
+            max: f64::max(a.max, b.max),
+        }
+    }
+
     pub fn size(&self) -> f64 {
         self.max - self.min
     }
@@ -29,6 +36,11 @@ impl Interval {
 
     pub fn clamp(&self, x: f64) -> f64 {
         x.clamp(self.min, self.max)
+    }
+
+    pub fn expand(&self, delta: f64) -> Self {
+        let padding = delta/2.0;
+        Interval { min: self.min - padding, max: self.max + padding }
     }
 
     pub const EMPTY: Interval = Interval {min: INFINITY, max: -INFINITY};

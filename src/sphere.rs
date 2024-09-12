@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::aabb::AABB;
 use crate::hittable::{HitRecord, Hittable};
 use crate::interval::Interval;
 use crate::material::Material;
@@ -9,14 +10,18 @@ use crate::vec3::{dot, Point3, Vec3};
 pub struct Sphere {
     center: Ray,
     radius: f64,
+    bbox: AABB,
     mat: Arc<dyn Material + Sync + Send>,
 }
 
 impl Sphere {
     pub fn new(center: Point3, radius: f64, mat: Arc<dyn Material + Sync + Send>) -> Self {
+        let rvec = Vec3::new(radius, radius, radius);
+        let bbox = AABB::from_points(center - rvec, center + rvec);
         Sphere {
             center: Ray::new(center, Vec3::empty()),
-            radius: radius,
+            radius: f64::max(radius,0.0),
+            bbox: bbox,
             mat: mat,
         }
     }
@@ -27,9 +32,16 @@ impl Sphere {
         radius: f64,
         mat: Arc<dyn Material + Sync + Send>,
     ) -> Self {
+
+        let center_bounds = Ray::new(center, center_next - center);
+        let rvec = Vec3::new(radius, radius, radius);
+        let bbox1 = AABB::from_points(center_bounds.at(0.0) - rvec, center_bounds.at(0.0) + rvec);
+        let bbox2 = AABB::from_points(center_bounds.at(1.0) - rvec, center_bounds.at(1.0) + rvec);
+
         Sphere {
-            center: Ray::new(center, center_next - center),
+            center: center_bounds,
             radius: radius,
+            bbox: AABB::from_bboxes(&bbox1, &bbox2),
             mat: mat,
         }
     }
@@ -64,5 +76,9 @@ impl Hittable for Sphere {
         rec.mat = self.mat.clone();
 
         return true;
+    }
+
+    fn bounding_box(&self) -> AABB {
+        self.bbox
     }
 }
