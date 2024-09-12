@@ -56,7 +56,7 @@ impl Hittable for Sphere {
         let c = dot(oc, oc) - self.radius * self.radius;
 
         let discriminant = h * h - a * c;
-        if discriminant < 1e-8 {
+        if discriminant < 0.0 {
             return false;
         }
 
