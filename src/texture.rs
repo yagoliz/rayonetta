@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
 use crate::color::Color;
+use crate::image::RayonettaImage;
+use crate::interval::Interval;
 use crate::vec3::Point3;
 
 pub trait Texture: Sync + Send {
@@ -66,5 +68,36 @@ impl Texture for CheckerTexture {
             _ => panic!("Modulo by 2 returned more than 1"),
         }
         
+    }
+}
+
+pub struct ImageTexture {
+    image: RayonettaImage,
+}
+
+impl ImageTexture {
+    pub fn from_image(filename: &str) -> Self {
+        let image = match RayonettaImage::from_file(filename) {
+            Ok(im) => im,
+            _ => panic!("Error opening file"),
+        };
+
+        ImageTexture { image: image }
+    }
+}
+
+impl Texture for ImageTexture {
+    fn value(&self, u: f64, v: f64, p: Point3) -> Color {
+        if self.image.height() <= 0 {
+            return Color::new(0.0, 1.0, 1.0);
+        }
+
+        let um = Interval::new(0.0, 1.0).clamp(u);
+        let vm = 1.0 - Interval::new(0.0, 1.0).clamp(v);
+
+        let i = (um * self.image.width() as f64) as u32;
+        let j = (vm * self.image.height() as f64) as u32;
+        
+        self.image.pixel_data(i, j)
     }
 }

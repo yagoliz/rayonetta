@@ -5,6 +5,7 @@ use crate::hittable::{HitRecord, Hittable};
 use crate::interval::Interval;
 use crate::material::Material;
 use crate::ray::Ray;
+use crate::utils::PI;
 use crate::vec3::{dot, Point3, Vec3};
 
 pub struct Sphere {
@@ -45,6 +46,14 @@ impl Sphere {
             mat: mat,
         }
     }
+
+    fn get_sphere_uv(p: &Point3, u: &mut f64, v: &mut f64) {
+        let theta = f64::acos(-p.y());
+        let phi = f64::atan2(-p.z(), p.x()) + PI;
+
+        *u = phi / (2.0 * PI);
+        *v = theta / PI;
+    }
 }
 
 impl Hittable for Sphere {
@@ -73,6 +82,7 @@ impl Hittable for Sphere {
         rec.p = r.at(rec.t);
         let outward_normal = (rec.p - current_center) / self.radius;
         rec.set_face_normal(r, &outward_normal);
+        Sphere::get_sphere_uv(&outward_normal, &mut rec.u, &mut rec.v);
         rec.mat = self.mat.clone();
 
         return true;
