@@ -1,2 +1,6 @@
+# Classic rust & Mac dirs
 /target
 .DS_Store
+
+# Random files for debugging
+debug.rs

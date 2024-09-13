@@ -13,6 +13,8 @@ pub struct HitRecord {
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
+    pub u: f64,
+    pub v: f64,
     pub mat: Arc<dyn Material + Sync + Send>,
 }
 
@@ -23,6 +25,8 @@ impl HitRecord {
             normal: Vec3::new(0.0, 0.0, 0.0),
             t: 0.0,
             front_face: true,
+            u: 0.0,
+            v: 0.0,
             mat: Arc::new(Lambertian::new(Color::new(0.0, 0.0, 0.0)))
         }
     }

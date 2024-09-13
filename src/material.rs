@@ -1,4 +1,11 @@
-use crate::{color::Color, hittable::HitRecord, ray::Ray, utils::random_uniform, vec3::{dot, random_unit_sphere, reflect, refract, unit_vector, Vec3}};
+use std::sync::Arc;
+
+use crate::color::Color;
+use crate::hittable::HitRecord;
+use crate::ray::Ray;
+use crate::texture::{SolidColor, Texture};
+use crate::utils::random_uniform;
+use crate::vec3::{dot, random_unit_sphere, reflect, refract, unit_vector, Vec3};
 
 pub trait Material: Sync + Send {
     fn scatter(
@@ -12,12 +19,16 @@ pub trait Material: Sync + Send {
 
 // Diffuse material
 pub struct Lambertian {
-    pub albedo: Color,
+    texture: Arc<dyn Texture>,
 }
 
 impl Lambertian {
     pub fn new(color: Color) -> Self {
-        Lambertian { albedo: color }
+        Lambertian { texture: Arc::new(SolidColor::from_color(color)) }
+    }
+
+    pub fn from_texture(texture: Arc<dyn Texture>) -> Self {
+        Lambertian { texture: texture.clone() }
     }
 }
 
@@ -35,7 +46,7 @@ impl Material for Lambertian {
         }
 
         *scattered = Ray::new_with_time(rec.p, scatter_direction, r_in.time());
-        *attenuation = self.albedo;
+        *attenuation = self.texture.value(rec.u, rec.v, rec.p);
         true
     }
 }

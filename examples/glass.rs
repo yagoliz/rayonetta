@@ -2,12 +2,14 @@ use std::sync::Arc;
 
 use env_logger::Env;
 
+use rayonetta::bvh::BVH;
 use rayonetta::camera::Camera;
 use rayonetta::color::Color;
 use rayonetta::hittable_list::HittableList;
 use rayonetta::material::{Dielectric, Lambertian, Metal};
 use rayonetta::plane::Plane;
 use rayonetta::sphere::Sphere;
+use rayonetta::texture::CheckerTexture;
 use rayonetta::vec3::{Point3, Vec3};
 
 fn main() {
@@ -28,10 +30,13 @@ fn main() {
     let glass = Arc::new(Dielectric::new(1.5));
     let bubble = Arc::new(Dielectric::new(1.0/1.5));
     world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.25, glass.clone())));
-    world.add(Arc::new(Sphere::new(Point3::new(0.25, 0.00, -1.2), 0.22, bubble.clone())));
+    world.add(Arc::new(Sphere::new(Point3::new(0.75, 0.00, -1.2), 0.22, bubble.clone())));
+
+    world = HittableList::from_object(Arc::new(BVH::from_hittable(world)));
 
     // Ground Plane
-    let material_ground = Arc::new(Lambertian::new(Color::new(0.5, 0.5, 0.5)));
+    let checker_texture = Arc::new(CheckerTexture::from_color(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9)));
+    let material_ground = Arc::new(Lambertian::from_texture(checker_texture));
     world.add(Arc::new(Plane::new(
         Vec3::new(0.0, 1.0, 0.0),
         Point3::new(0.0, -0.25, 0.0),

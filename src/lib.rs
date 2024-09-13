@@ -9,5 +9,6 @@ pub mod material;
 pub mod plane;
 pub mod ray;
 pub mod sphere;
+pub mod texture;
 pub mod utils;
 pub mod vec3;

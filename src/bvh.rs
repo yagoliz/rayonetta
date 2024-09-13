@@ -16,7 +16,7 @@ impl BVH {
     pub fn new(objects: &mut Vec<Arc<dyn Hittable>>, start: usize, end: usize) -> Self {
         // Building the BBOX from the object span
         let mut bbox = AABB::EMPTY;
-        for i in 0..objects.len() {
+        for i in start..end {
             bbox = AABB::from_bboxes(&bbox, &objects[i].bounding_box())
         }
 
@@ -40,7 +40,7 @@ impl BVH {
             right = objects[start + 1].clone();
         } else {
             objects[start..end].sort_by(|a, b| {
-                if comparator(a.clone(), b.clone()) {
+                if comparator(a, b) {
                     std::cmp::Ordering::Less
                 } else {
                     std::cmp::Ordering::Greater
@@ -59,22 +59,22 @@ impl BVH {
         }
     }
 
-    fn box_compare(a: Arc<dyn Hittable>, b: Arc<dyn Hittable>, axis_index: usize) -> bool {
+    fn box_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>, axis_index: usize) -> bool {
         let a_axis_interval = a.bounding_box().axis_interval(axis_index);
         let b_axis_interval = b.bounding_box().axis_interval(axis_index);
 
         a_axis_interval.min < b_axis_interval.min
     }
 
-    fn box_x_compare(a: Arc<dyn Hittable>, b: Arc<dyn Hittable>) -> bool {
+    fn box_x_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> bool {
         BVH::box_compare(a, b, 0)
     }
 
-    fn box_y_compare(a: Arc<dyn Hittable>, b: Arc<dyn Hittable>) -> bool {
+    fn box_y_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> bool {
         BVH::box_compare(a, b, 1)
     }
 
-    fn box_z_compare(a: Arc<dyn Hittable>, b: Arc<dyn Hittable>) -> bool {
+    fn box_z_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> bool {
         BVH::box_compare(a, b, 2)
     }
 }
@@ -87,7 +87,7 @@ impl Hittable for BVH {
         rec: &mut crate::hittable::HitRecord,
     ) -> bool {
         // Exit early if bbox of this node is not hit
-        if !self.bbox.hit(r, ray_t) {
+        if !self.bbox.hit(r, *ray_t) {
             return false;
         }
 
