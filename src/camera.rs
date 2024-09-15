@@ -5,6 +5,7 @@ use crate::{
     color::{write_color, Color},
     hittable::HitRecord,
     hittable_list::HittableList,
+    hittable::Hittable,
     interval::Interval,
     ray::Ray,
     utils::{degrees_to_radians, random_uniform, INFINITY},
@@ -23,6 +24,7 @@ pub struct Camera {
 
     pub defocus_angle: f64,
     pub focus_dist: f64,
+    pub background: Color,
 
     initialized: bool,
     image_height: i32,
@@ -53,6 +55,7 @@ impl Camera {
             vup: Vec3::new(0.0, 1.0, 0.0),
             defocus_angle: 0.0,
             focus_dist: 10.0,
+            background: Color::empty(),
             image_height: 0,
             pixel_sample_scale: 1.0/5.0,
             center: Point3::empty(),
@@ -110,19 +113,20 @@ impl Camera {
         }
 
         let mut rec = HitRecord::new();
-        if world.hit(r, &mut Interval::new(0.001, INFINITY), &mut rec) {
-            let mut scattered = Ray::new(Vec3::empty(), Vec3::empty());
-            let mut attenuation = Color::empty();
-            if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
-                return attenuation * self.ray_color(&scattered, world, depth-1);
-            } else {
-                return Color::empty();
-            }
+        if !world.hit(r, &mut Interval::new(0.001, INFINITY), &mut rec) {
+            return self.background;
         }
 
-        let unit_direction = unit_vector(r.direction());
-        let a = 0.5 * (unit_direction.y() + 1.0);
-        (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 0.9)
+        let mut scattered = Ray::new(Point3::empty(), Vec3::empty());
+        let mut attenuation = Color::empty();
+        let color_from_emission = rec.mat.emitted(rec.u, rec.v, rec.p);
+
+        if !rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
+            return color_from_emission;
+        }
+
+        let color_from_scatter = attenuation * self.ray_color(&scattered, world, depth-1);
+        color_from_emission + color_from_scatter
     }
 
     fn get_ray(&self, i: i32, j: i32) -> Ray {
@@ -164,7 +168,7 @@ impl Camera {
 
         // Parallelize the outer loop (over scanlines/rows)
         pixels.par_iter_mut().enumerate().for_each(|(j, row)| { 
-            info!("Scanlines remaining: {}", self.image_height - j as i32);
+            info!("Scanline number: {}", j);
             for i in 0..self.image_width {
                 let mut pixel_color = Color::empty();
                 for _ in 0..self.samples_per_pixel {

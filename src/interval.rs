@@ -1,3 +1,5 @@
+use std::ops;
+
 use crate::utils::INFINITY;
 
 #[derive(Clone, Copy, Debug)]
@@ -42,4 +44,18 @@ impl Interval {
 
     pub const EMPTY: Interval = Interval {min: INFINITY, max: -INFINITY};
     pub const UNIVERSE: Interval = Interval {min: -INFINITY, max: INFINITY};
+}
+
+impl ops::Add<f64> for Interval {
+    type Output = Self;
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval::new(self.min + rhs, self.max + rhs)
+    }
+}
+
+impl ops::Add<Interval> for f64 {
+    type Output = Interval;
+    fn add(self, rhs: Interval) -> Self::Output {
+        rhs + self
+    }
 }

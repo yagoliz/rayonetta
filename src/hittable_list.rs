@@ -31,8 +31,10 @@ impl HittableList {
     pub fn clear(&mut self) {
         self.list.clear();
     }
+}
 
-    pub fn hit(&self, r: &Ray, ray_t: &mut Interval, rec: &mut HitRecord) -> bool {
+impl Hittable for HittableList {
+    fn hit(&self, r: &Ray, ray_t: &mut Interval, rec: &mut HitRecord) -> bool {
         let mut hit_anything = false;
         let mut closest = ray_t.max;
 
@@ -49,7 +51,7 @@ impl HittableList {
         hit_anything
     }
 
-    pub fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> AABB {
         self.bbox
     }
 }

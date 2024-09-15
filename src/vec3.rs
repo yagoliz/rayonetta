@@ -1,4 +1,4 @@
-use std::ops::{self, Index};
+use std::ops::{self, Index, IndexMut};
 
 use crate::utils::{random_interval, random_uniform, PI};
 
@@ -72,6 +72,17 @@ impl Index<usize> for Vec3 {
             1 => &self.y,
             2 => &self.z,
             _ => panic!("Invalid index for Vec3")
+        }
+    }
+}
+
+impl IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut f64 {
+        match index  {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
+            _ => panic!("Vec3 does not implement indices greater than 2!"),
         }
     }
 }

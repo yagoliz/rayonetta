@@ -5,16 +5,22 @@ use crate::hittable::HitRecord;
 use crate::ray::Ray;
 use crate::texture::{SolidColor, Texture};
 use crate::utils::random_uniform;
-use crate::vec3::{dot, random_unit_sphere, reflect, refract, unit_vector, Vec3};
+use crate::vec3::{dot, random_unit_sphere, reflect, refract, unit_vector, Vec3, Point3};
 
 pub trait Material: Sync + Send {
     fn scatter(
         &self,
-        r_in: &Ray,
-        rec: &HitRecord,
-        attenuation: &mut Color,
-        scattered: &mut Ray,
-    ) -> bool;
+        _r_in: &Ray,
+        _rec: &HitRecord,
+        _attenuation: &mut Color,
+        _scattered: &mut Ray,
+    ) -> bool {
+        false
+    }
+
+    fn emitted(&self, _u: f64, _v: f64, _p: Point3) -> Color {
+        Color::empty()
+    }
 }
 
 // Diffuse material
@@ -126,3 +132,24 @@ impl Material for Dielectric {
         true
     }
 }
+
+pub struct DiffuseLight {
+    texture: Arc<dyn Texture>,
+}
+
+impl DiffuseLight {
+    pub fn from_color(emit: Color) -> Self {
+        DiffuseLight { texture: Arc::new(SolidColor::from_color(emit)) }
+    }
+
+    pub fn from_texture(texture: Arc<dyn Texture>) -> Self {
+        DiffuseLight { texture: texture.clone() }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn emitted(&self, u: f64, v: f64, p: Vec3) -> Color {
+        self.texture.value(u, v, p)
+    }
+}
+

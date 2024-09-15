@@ -1,0 +1,268 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'rayonetta'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "rayonetta",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'collections'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=collections",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "collections",
+                    "kind": "example"
+                }
+            },
+            "args": ["--demo-number", "7"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'collections'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=collections",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "collections",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'debug'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=debug",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "debug",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'debug'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=debug",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "debug",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'glass'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=glass",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "glass",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'glass'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=glass",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "glass",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'motion_blur'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=motion_blur",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "motion_blur",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'motion_blur'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=motion_blur",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "motion_blur",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'motion_blur_checkers'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=motion_blur_checkers",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "motion_blur_checkers",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'motion_blur_checkers'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=motion_blur_checkers",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "motion_blur_checkers",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'thousandballs'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=thousandballs",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "thousandballs",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'thousandballs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=thousandballs",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "thousandballs",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'sphere_hit'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=sphere_hit",
+                    "--package=rayonetta"
+                ],
+                "filter": {
+                    "name": "sphere_hit",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
