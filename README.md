@@ -13,3 +13,9 @@ Not all this repository is copy-pasta. Some features that I felt like adding:
 - Added a `Plane` class. I felt it was a more elegant solution than using a massive sphere.
 
 - Parallelization via the [`rayon`](https://github.com/rayon-rs/rayon) crate. Sped-up the last renders by at least 4x.
+
+## Ray Tracing: The Next week
+
+Implemented the next chapter in Rust. If all goes well, you too can obtain the following image:
+
+![Final Render of the second course](generated/alleffects.png)
