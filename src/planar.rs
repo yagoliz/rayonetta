@@ -48,7 +48,7 @@ impl Quadrilateral {
         }
 
         rec.u = alpha;
-        rec.v = alpha;
+        rec.v = beta;
 
         true
     }
@@ -101,12 +101,12 @@ pub fn create_box(a: Point3, b: Point3, mat: Arc<dyn Material>) -> Arc<dyn Hitta
     let dy = Vec3::new(0.0, max.y() - min.y(), 0.0);
     let dz = Vec3::new(0.0, 0.0, max.z() - min.z());
 
-    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), min.y(), min.z()), dx, dy, mat.clone()))); // front
-    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), min.y(), min.z()), dy, dz, mat.clone()))); // left
+    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), min.y(), max.z()), dx, dy, mat.clone()))); // front
+    sides.add(Arc::new(Quadrilateral::new(Point3::new(max.x(), min.y(), max.z()),-dz, dy, mat.clone()))); // right
+    sides.add(Arc::new(Quadrilateral::new(Point3::new(max.x(), min.y(), min.z()),-dx, dy, mat.clone()))); // back
+    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), min.y(), min.z()), dz, dy, mat.clone()))); // left
+    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), max.y(), max.z()), dx,-dz, mat.clone()))); // top
     sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), min.y(), min.z()), dx, dz, mat.clone()))); // bottom
-    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), max.y(), min.z()), dx, dz, mat.clone()))); // top
-    sides.add(Arc::new(Quadrilateral::new(Point3::new(max.x(), min.y(), min.z()), dy, dz, mat.clone()))); // right
-    sides.add(Arc::new(Quadrilateral::new(Point3::new(min.x(), min.y(), max.z()), dx, dy, mat.clone()))); // back
 
     Arc::new(sides)
 }

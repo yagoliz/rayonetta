@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{aabb::AABB, hittable::Hittable, hittable_list::HittableList};
+use crate::{aabb::AABB, hittable::Hittable, hittable_list::HittableList, interval::Interval};
 
 pub struct BVH {
     pub left: Arc<dyn Hittable>,
@@ -10,13 +10,15 @@ pub struct BVH {
 
 impl BVH {
     pub fn from_hittable(world: HittableList) -> Self {
-        BVH::new(&mut world.list.clone(), 0, world.list.len())
+        BVH::new(&mut world.list.clone())
     }
 
-    pub fn new(objects: &mut Vec<Arc<dyn Hittable>>, start: usize, end: usize) -> Self {
+    pub fn new(objects: &mut [Arc<dyn Hittable>]) -> Self {
+        let len = objects.len();
+
         // Building the BBOX from the object span
         let mut bbox = AABB::EMPTY;
-        for i in start..end {
+        for i in 0..len {
             bbox = AABB::from_bboxes(&bbox, &objects[i].bounding_box())
         }
 
@@ -28,28 +30,22 @@ impl BVH {
             _ => BVH::box_z_compare,
         };
 
-        let object_span = end - start;
+        let object_span = len;
 
         let left: Arc<dyn Hittable>;
         let right: Arc<dyn Hittable>;
         if object_span == 1 {
-            left = objects[start].clone();
-            right = objects[start].clone();
+            left = objects[0].clone();
+            right = objects[0].clone();
         } else if object_span == 2 {
-            left = objects[start].clone();
-            right = objects[start + 1].clone();
+            left = objects[0].clone();
+            right = objects[1].clone();
         } else {
-            objects[start..end].sort_by(|a, b| {
-                if comparator(a, b) {
-                    std::cmp::Ordering::Less
-                } else {
-                    std::cmp::Ordering::Greater
-                }
-            });
+            objects.sort_by(|a, b| comparator(a, b).cmp(&comparator(b, a))); 
 
-            let mid = start + object_span / 2;
-            left = Arc::new(BVH::new(&mut objects.clone(), start, mid));
-            right = Arc::new(BVH::new(&mut objects.clone(), mid, end));
+            let mid = object_span / 2;
+            left = Arc::new(BVH::new(&mut objects[0..mid]));
+            right = Arc::new(BVH::new(&mut objects[mid..len]));
         }
 
         BVH {
@@ -63,7 +59,8 @@ impl BVH {
         let a_axis_interval = a.bounding_box().axis_interval(axis_index);
         let b_axis_interval = b.bounding_box().axis_interval(axis_index);
 
-        a_axis_interval.min < b_axis_interval.min
+        let res = a_axis_interval.min < b_axis_interval.min;
+        return res;
     }
 
     fn box_x_compare(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> bool {
@@ -92,7 +89,7 @@ impl Hittable for BVH {
         }
 
         let hit_left = self.left.hit(r, ray_t, rec);
-        let hit_right = self.right.hit(r, ray_t, rec);
+        let hit_right = self.right.hit(r, &mut Interval::new(ray_t.min, if hit_left {rec.t} else {ray_t.max}), rec);
 
         hit_left || hit_right
     }

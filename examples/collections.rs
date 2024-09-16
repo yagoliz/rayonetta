@@ -6,6 +6,7 @@ use env_logger::Env;
 use rayonetta::bvh::BVH;
 use rayonetta::camera::Camera;
 use rayonetta::color::Color;
+use rayonetta::constant_medium::ConstantMedium;
 use rayonetta::hittable_list::HittableList;
 use rayonetta::material::{Dielectric, DiffuseLight, Lambertian, Metal};
 use rayonetta::planar::{create_box, Quadrilateral};
@@ -21,7 +22,7 @@ use rayonetta::vec3::{Point3, Vec3};
 #[command(version, about, long_about = None)]
 struct Args {
     /// Demo number to show
-    #[arg(short, long)]
+    #[arg(short, long, default_value_t = 0)]
     demo_number: usize,
 }
 
@@ -486,14 +487,22 @@ fn cornell_box() {
         white.clone(),
     )));
 
-    let mut box1 = create_box(Point3::empty(), Point3::new(165.0, 330.0, 165.0), white.clone());
+    let mut box1 = create_box(
+        Point3::empty(),
+        Point3::new(165.0, 330.0, 165.0),
+        white.clone(),
+    );
     box1 = Arc::new(RotateY::new(box1, 15.0));
     box1 = Arc::new(Translate::new(box1, Vec3::new(265.0, 0.0, 295.0)));
     world.add(box1);
 
-    let mut box2 = create_box(Point3::empty(), Point3::new(165.0, 165.0, 165.0), white.clone());
+    let mut box2 = create_box(
+        Point3::empty(),
+        Point3::new(165.0, 165.0, 165.0),
+        white.clone(),
+    );
     box2 = Arc::new(RotateY::new(box2, -18.0));
-    box2 = Arc::new(Translate::new(box2, Vec3::new(130.0, 0.0, 65.0)));    
+    box2 = Arc::new(Translate::new(box2, Vec3::new(130.0, 0.0, 65.0)));
 
     world.add(box2);
 
@@ -507,6 +516,243 @@ fn cornell_box() {
 
     cam.vfov = 40.0;
     cam.lookfrom = Point3::new(278.0, 278.0, -800.0);
+    cam.lookat = Point3::new(278.0, 278.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+}
+
+fn cornell_smoke() {
+    let mut world = HittableList::new();
+
+    let red = Arc::new(Lambertian::new(Color::new(0.65, 0.05, 0.05)));
+    let white = Arc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let green = Arc::new(Lambertian::new(Color::new(0.12, 0.45, 0.15)));
+    let light = Arc::new(DiffuseLight::from_color(Color::new(7.0, 7.0, 7.0)));
+
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(113.0, 554.0, 127.0),
+        Vec3::new(330.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 305.0),
+        light.clone(),
+    )));
+
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        green.clone(),
+    )));
+
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        red.clone(),
+    )));
+
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        white.clone(),
+    )));
+
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(0.0, 555.0, 0.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        white.clone(),
+    )));
+
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(0.0, 0.0, 555.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        white.clone(),
+    )));
+
+    let mut box1 = create_box(
+        Point3::empty(),
+        Point3::new(165.0, 330.0, 165.0),
+        white.clone(),
+    );
+    box1 = Arc::new(RotateY::new(box1, 15.0));
+    box1 = Arc::new(Translate::new(box1, Vec3::new(265.0, 0.0, 295.0)));
+
+    world.add(Arc::new(ConstantMedium::new_from_color(
+        box1,
+        0.01,
+        Color::empty(),
+    )));
+
+    let mut box2 = create_box(
+        Point3::empty(),
+        Point3::new(165.0, 165.0, 165.0),
+        white.clone(),
+    );
+    box2 = Arc::new(RotateY::new(box2, -18.0));
+    box2 = Arc::new(Translate::new(box2, Vec3::new(130.0, 0.0, 65.0)));
+
+    world.add(Arc::new(ConstantMedium::new_from_color(
+        box2,
+        0.01,
+        Color::new(1.0, 1.0, 1.0),
+    )));
+
+    world = HittableList::from_object(Arc::new(BVH::from_hittable(world)));
+
+    let mut cam = Camera::new();
+
+    cam.aspect_ratio = 1.0;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_depth = 50;
+    cam.background = Color::empty();
+
+    cam.vfov = 40.0;
+    cam.lookfrom = Point3::new(278.0, 278.0, -800.0);
+    cam.lookat = Point3::new(278.0, 278.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+}
+
+fn final_scene(image_width: i32, samples_per_pixel: i32, max_depth: i32) {
+    // Our precious world
+    let mut world = HittableList::new();
+
+    // Groundwork
+    let mut ground_boxes = HittableList::new();
+    let ground = Arc::new(Lambertian::new(Color::new(0.48, 0.83, 0.53)));
+
+    let boxes_per_side = 20;
+    for i in 0..boxes_per_side {
+        for j in 0..boxes_per_side {
+            let w = 100.0;
+            let x0 = -1000.0 + (i as f64) * w;
+            let z0 = -1000.0 + (j as f64) * w;
+            let y0 = 0.0;
+            let x1 = x0 + w;
+            let y1 = random_interval(1.0, 101.0);
+            let z1 = z0 + w;
+
+            ground_boxes.add(create_box(
+                Point3::new(x0, y0, z0),
+                Point3::new(x1, y1, z1),
+                ground.clone(),
+            ));
+        }
+    }
+
+    world.add(Arc::new(BVH::from_hittable(ground_boxes)));
+
+    let light = Arc::new(DiffuseLight::from_color(Color::new(7.0, 7.0, 7.0)));
+    world.add(Arc::new(Quadrilateral::new(
+        Point3::new(123.0, 554.0, 147.0),
+        Vec3::new(300.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 265.0),
+        light.clone(),
+    )));
+
+    // Moving Sphere
+    let center1 = Point3::new(400.0, 400.0, 200.0);
+    let center2 = center1 + Vec3::new(30.0, 0.0, 0.0);
+    let sphere_material = Arc::new(Lambertian::new(Color::new(0.7, 0.3, 0.1)));
+    world.add(Arc::new(Sphere::new_dynamic(
+        center1,
+        center2,
+        50.0,
+        sphere_material.clone(),
+    )));
+
+    // Glass & metal spheres
+    world.add(Arc::new(Sphere::new(
+        Point3::new(260.0, 150.0, 45.0),
+        50.0,
+        Arc::new(Dielectric::new(1.5)),
+    )));
+    world.add(Arc::new(Sphere::new(
+        Point3::new(0.0, 150.0, 145.0),
+        50.0,
+        Arc::new(Metal::new(Color::new(0.8, 0.8, 0.9), 0.2)),
+    )));
+
+    // Shiny blue sphere
+    let mut boundary = Arc::new(Sphere::new(
+        Point3::new(360.0, 180.0, 145.0),
+        70.0,
+        Arc::new(Dielectric::new(1.5)),
+    ));
+
+    world.add(boundary.clone());
+    world.add(Arc::new(ConstantMedium::new_from_color(
+        boundary.clone(),
+        0.2,
+        Color::new(0.2, 0.4, 0.9),
+    )));
+    boundary = Arc::new(Sphere::new(
+        Point3::empty(),
+        5000.0,
+        Arc::new(Dielectric::new(1.5)),
+    ));
+    world.add(Arc::new(ConstantMedium::new_from_color(
+        boundary,
+        0.0001,
+        Color::new(1.0, 1.0, 1.0),
+    )));
+
+    // Mars ball
+    let mars_material = Arc::new(Lambertian::from_texture(Arc::new(
+        ImageTexture::from_image("assets/mars.webp"),
+    )));
+    world.add(Arc::new(Sphere::new(
+        Point3::new(400.0, 200.0, 400.0),
+        100.0,
+        mars_material,
+    )));
+
+    // Perlin Texture
+    let perlin_texture = Arc::new(NoiseTexture::new(0.2));
+    world.add(Arc::new(Sphere::new(
+        Point3::new(220.0, 280.0, 300.0),
+        80.0,
+        Arc::new(Lambertian::from_texture(perlin_texture)),
+    )));
+
+    // Strange white box with bubbles
+    let mut bubble_box = HittableList::new();
+    let white = Arc::new(Lambertian::new(Color::new(0.73, 0.73, 0.73)));
+    let ns = 1000;
+    for _ in 0..ns {
+        bubble_box.add(Arc::new(Sphere::new(
+            Point3::random_range(0.0, 165.0),
+            10.0,
+            white.clone(),
+        )));
+    }
+
+    world.add(Arc::new(Translate::new(
+        Arc::new(RotateY::new(Arc::new(BVH::from_hittable(bubble_box)), 15.0)),
+        Vec3::new(-100.0, 270.0, 395.0),
+    )));
+
+    // Camera Settings
+    let mut cam = Camera::new();
+
+    cam.aspect_ratio = 1.0;
+    cam.image_width = image_width;
+    cam.samples_per_pixel = samples_per_pixel;
+
+    cam.max_depth = max_depth;
+    cam.background = Color::empty();
+
+    cam.vfov = 40.0;
+    cam.lookfrom = Point3::new(478.0, 278.0, -600.0);
     cam.lookat = Point3::new(278.0, 278.0, 0.0);
     cam.vup = Vec3::new(0.0, 1.0, 0.0);
 
@@ -532,6 +778,8 @@ fn main() {
         5 => quadrilaterals(),
         6 => simple_light(),
         7 => cornell_box(),
-        _ => panic!("Non-existing demo number!"),
+        8 => cornell_smoke(),
+        9 => final_scene(800, 10000, 40),
+        _ => final_scene(400, 250, 4),
     }
 }

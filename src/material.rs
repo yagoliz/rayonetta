@@ -143,7 +143,7 @@ impl DiffuseLight {
     }
 
     pub fn from_texture(texture: Arc<dyn Texture>) -> Self {
-        DiffuseLight { texture: texture.clone() }
+        DiffuseLight { texture: texture }
     }
 }
 
@@ -153,3 +153,31 @@ impl Material for DiffuseLight {
     }
 }
 
+// Isotropic material. Scatters light in a random direction
+pub struct Isotropic {
+    texture: Arc<dyn Texture>,
+}
+
+impl Isotropic {
+    pub fn from_color(c: Color) -> Self {
+        Isotropic { texture: Arc::new(SolidColor::from_color(c)) }
+    }
+
+    pub fn from_texture(texture: Arc<dyn Texture>) -> Self {
+        Isotropic { texture: texture }
+    }
+}
+
+impl Material for Isotropic {
+    fn scatter(
+            &self,
+            r_in: &Ray,
+            rec: &HitRecord,
+            attenuation: &mut Color,
+            scattered: &mut Ray,
+        ) -> bool {
+        *scattered = Ray::new_with_time(rec.p, random_unit_sphere(), r_in.time());
+        *attenuation = self.texture.value(rec.u, rec.v, rec.p);
+        true
+    }
+}
