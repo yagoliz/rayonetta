@@ -16,6 +16,9 @@ pub struct Camera {
     pub image_width: i32,
     pub samples_per_pixel: i32,
     pub max_depth: i32,
+
+    pub sqrt_spp: i32,
+    pub inv_sqrt_spp: f64,
     
     pub vfov: f64, // Field of View Angle
     pub lookfrom: Point3,
@@ -48,6 +51,8 @@ impl Camera {
             aspect_ratio: 0.0,
             image_width: 0,
             samples_per_pixel: 5,
+            sqrt_spp: f64::sqrt(5.0) as i32,
+            inv_sqrt_spp: 1.0 / f64::sqrt(5.0),
             max_depth: 10,
             vfov: 90.0,
             lookfrom: Point3::empty(),
@@ -74,7 +79,10 @@ impl Camera {
     fn initialize(&mut self) {
         self.image_height = (self.image_width as f64 / self.aspect_ratio) as i32;
 
-        self.pixel_sample_scale = 1.0 / self.samples_per_pixel as f64;
+        self.sqrt_spp = f64::sqrt(self.samples_per_pixel as f64) as i32;
+
+        self.pixel_sample_scale = 1.0 / (self.sqrt_spp * self.sqrt_spp) as f64;
+        self.inv_sqrt_spp = 1.0 / self.sqrt_spp as f64;
 
         self.center = self.lookfrom;
 
@@ -129,8 +137,8 @@ impl Camera {
         color_from_emission + color_from_scatter
     }
 
-    fn get_ray(&self, i: i32, j: i32) -> Ray {
-        let offset = self.sample_square();
+    fn get_ray(&self, i: i32, j: i32, si: i32, sj: i32) -> Ray {
+        let offset = self.sample_square_stratified(si, sj);
         let pixel_sample = self.pixel_00_loc + ((i as f64 + offset.x()) * self.pixel_delta_u) + ((j as f64 + offset.y()) * self.pixel_delta_v);
     
         let origin = if self.defocus_angle <= 0.0 {self.center} else {self.defocus_disk_sample()};
@@ -138,6 +146,15 @@ impl Camera {
         let ray_time = random_uniform();
 
         Ray::new_with_time(origin, direction, ray_time)
+    }
+
+    fn sample_square_stratified(&self, si: i32, sj: i32) -> Vec3 {
+        // We return a vector to a random point in the square sub-pixel specified by si, sj
+        // Idealized to unit square pixel [-.5, -.5] to [+.5, +.5]
+
+        let px = ((si as f64 + random_uniform()) * self.inv_sqrt_spp) - 0.5;
+        let py = ((sj as f64 + random_uniform()) * self.inv_sqrt_spp) + 0.5;
+        Vec3::new(px, py, 0.0)
     }
 
     fn sample_square(&self) -> Vec3 {
@@ -171,9 +188,11 @@ impl Camera {
             info!("Scanline number: {}", j);
             for i in 0..self.image_width {
                 let mut pixel_color = Color::empty();
-                for _ in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i, j as i32);
-                    pixel_color = pixel_color + self.ray_color(&r, world, self.max_depth);
+                for sj in 0..self.sqrt_spp {
+                    for si in 0..self.sqrt_spp {
+                        let r = self.get_ray(i, j as i32, si, sj);
+                        pixel_color = pixel_color + self.ray_color(&r, world, self.max_depth);
+                    }
                 }
                 row[i as usize] = pixel_color; // Assuming you have a conversion method
             }

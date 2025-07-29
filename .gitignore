@@ -5,3 +5,6 @@
 # Random files for debugging
 debug.rs
 tmp.ppm
+
+# Random generated stuff
+playground/
