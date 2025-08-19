@@ -34,7 +34,7 @@ impl Lambertian {
     }
 
     pub fn from_texture(texture: Arc<dyn Texture>) -> Self {
-        Lambertian { texture: texture.clone() }
+        Lambertian { texture: texture }
     }
 }
 
@@ -59,13 +59,17 @@ impl Material for Lambertian {
 
 // Metallic material
 pub struct Metal {
-    albedo: Color,
+    texture: Arc<dyn Texture>,
     fuzz: f64,
 }
 
 impl Metal {
     pub fn new(color: Color, fuzz: f64) -> Self {
-        Metal { albedo: color, fuzz: if fuzz < 1.0 {fuzz} else {1.0} }
+        Metal { texture: Arc::new(SolidColor::from_color(color)), fuzz: if fuzz < 1.0 {fuzz} else {1.0} }
+    }
+
+    pub fn from_texture(texture: Arc<dyn Texture>, fuzz: f64) -> Self {
+        Metal { texture: texture, fuzz: if fuzz < 1.0 {fuzz} else {1.0} }
     }
 }
 
@@ -81,19 +85,24 @@ impl Material for Metal {
         let mut reflected = reflect(r_in.direction(), rec.normal);
         reflected = unit_vector(reflected) + (self.fuzz * random_unit_sphere());
         *scattered = Ray::new_with_time(rec.p, reflected, r_in.time());
-        *attenuation = self.albedo;
+        *attenuation = self.texture.value(rec.u, rec.v, rec.p);
         dot(scattered.direction(), rec.normal) > 0.0
     }
 }
 
 // Dielectric
 pub struct Dielectric {
-    refraction_index: f64
+    refraction_index: f64,
+    color: Color,
 }
 
 impl Dielectric {
     pub fn new(refraction_index: f64) -> Self {
-        Dielectric { refraction_index: refraction_index }
+        Dielectric { refraction_index: refraction_index, color: Color::new(1.0, 1.0, 1.0) }
+    }
+
+    pub fn from_color(color: Color, refraction_index: f64) -> Self {
+        Dielectric { refraction_index: refraction_index, color: color }
     }
 
     fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
@@ -112,7 +121,10 @@ impl Material for Dielectric {
             attenuation: &mut Color,
             scattered: &mut Ray,
         ) -> bool {
-        *attenuation = Color::new(1.0, 1.0, 1.0);
+        // Set attenuation to the color of the material
+        *attenuation = self.color;
+
+        // Refraction index and subsequent calculations
         let ri = if rec.front_face { 1.0 / self.refraction_index } else { self.refraction_index };
 
         let unit_direction = unit_vector(r_in.direction());
